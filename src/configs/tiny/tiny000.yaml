@@ -1,0 +1,92 @@
+experiment:
+  seed: 88
+  save_dir: ../experiments/
+
+
+active_learning:
+  n_rounds: 50
+  batch_size: 16
+  budget: 1000
+
+
+data:
+  annotations: ../data/active_learning_dataframe.csv
+  data_dir: ../data/
+  input: filename
+  target: label
+  dataset:
+    name: ImageDataset
+    params:
+      channels: bgr
+      flip: true
+      transpose: true
+      verbose: true
+
+
+transform:
+  resize:
+    name: resize_ignore
+    params:
+      imsize: [128, 128]
+  augment:
+    name: rand_augment_3d
+    params:
+      n: 3
+      p: 0.9
+  crop:
+    null
+  preprocess:
+    name: Preprocessor
+    params:
+      image_range: [0, 255]
+      input_range: [0, 1]
+      mean: [0.5, 0.5, 0.5]
+      sdev: [0.5, 0.5, 0.5]
+
+
+task:
+  name: ClassificationTask
+  params:
+
+
+model:
+  name: Net2D
+  params:
+    backbone: tf_efficientnetv2_b0
+    pretrained: true
+    num_classes: 5
+    dropout: 0.2
+    pool: avg
+    in_channels: 3
+    multisample_dropout: false
+
+
+loss:
+  name: CrossEntropyLoss
+  params:
+
+
+optimizer:
+  name: AdamW
+  params:
+    lr: 1.0e-4
+    weight_decay: 5.0e-4
+
+
+scheduler:
+  name: CosineAnnealingLR
+  params:
+    final_lr: 0.0
+
+
+train:
+  batch_size: 16
+  num_epochs: 1
+
+
+evaluate:
+  metrics: [Kappa]
+  monitor: kappa
+  mode: max
+
+
